@@ -4,7 +4,14 @@
 #imports modules/packages
 import pandas as pd
 import numpy as np
-from pylab import plot,figure,subplot,hist,xlim,show,xlabel,ylabel,title 
+from pylab import plot,figure,subplot,hist,xlim,show,xlabel,ylabel,title
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn import metrics
+from sklearn.cluster import KMeans
+
+
 
 #functions
 def overviewdata():
@@ -15,6 +22,7 @@ def overviewdata():
         if not i in qltylist:
             qltylist.append(i)
             qltylist.sort()
+    print(qltylist)
     return data, target, dataSet.info(), qltylist
 
 def plotdata(data, target, qltylist):
@@ -47,21 +55,60 @@ def histodata(data, target, qltylist):
         xlim(xmin,xmax)
         count+=1  
     show()
+
+def classify(data, target, qltylist):
+    t = np.zeros(len(target))
+    count = 1
+    for i in qltylist:
+        t[target.quality == i] = count
+        count+=1
+    
+    X_train, X_test, y_train, y_test = train_test_split(data, t, test_size=0.3, random_state=109)
+    gnb = GaussianNB()
+    gnb.fit(X_train, y_train)
+    y_pred = gnb.predict(X_test)
+    print("\nAccuracy of Naive Bayes Classification: ")
+    print(metrics.accuracy_score(y_test, y_pred))
+    #Confusion Matrix
+    print("\nConfusion Matrix: ")
+    print(confusion_matrix(gnb.predict(X_test),y_test))
+    #Classification report
+    print("\nReport of performance of the classifier: ")
+    print(classification_report(gnb.predict(X_test),y_test, target_names=['3', '4', '5','6','7','8','9']))
+    print("\nFollowing 2 Lines help understanding the ZERO division warning due to last label not having enough samples")
+    print(np.unique(y_pred))
+    print(np.unique(y_test))
+    print("\n Average value of the predictions")
+    scores = cross_val_score(gnb, data,t, cv=5)
+    print(scores)
+    print("Mean value of scores:",np.mean(scores))
+    return t
+    
+
+    
+    
+
     
 #main function
 def main():
     print('Welcome to data mining tool!')
-    print('Lets see an overview of the data\n')
+    
     #View overview of data
+    print('Lets see an overview of the data\n')
     data, target, dataSet, qltylist = overviewdata()
+    
     #Visualization
-    print('\nPlotting relation of sulfur dioxide on the quality')
-    plotdata(data, target, qltylist)
-    print('\nPlot histogram of alcohol on the quality')
-    histodata(data, target, qltylist)
+    print('\nPlotting relation of sulfur dioxide in comparison to quality')
+    #plotdata(data, target, qltylist)
+    print('\nPlot histogram of amounts alcohol in comparison to quality')
+    #histodata(data, target, qltylist)
 
-    #Classify and cluster
-
+    #Classify
+    print('\nLets train a classifier from the quality of the wines')
+    t = classify(data, target, qltylist)
+    
+    #Clustering
+   
     
     
     #discover relationships
