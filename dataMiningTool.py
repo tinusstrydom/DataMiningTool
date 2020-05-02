@@ -7,7 +7,7 @@ import numpy as np
 from pylab import plot,figure,subplot,hist,xlim,show,xlabel,ylabel,title
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report,completeness_score,homogeneity_score
 from sklearn import metrics
 from sklearn.cluster import KMeans
 
@@ -84,7 +84,31 @@ def classify(data, target, qltylist):
     print("Mean value of scores:",np.mean(scores))
     return t
     
-
+def clustering(data,t):
+    kmeans = KMeans(n_clusters=7, init='random')
+    kmeans.fit(data)
+    c = kmeans.predict(data)
+    print(completeness_score(t,c))
+    print(homogeneity_score(t,c))
+    print(c)
+    figure()
+    subplot(211)
+    plot(data.free_sulfur_dioxide.loc[t==1],data.total_sulfur_dioxide.loc[t==1],'ro')
+    plot(data.free_sulfur_dioxide.loc[t==2],data.total_sulfur_dioxide.loc[t==2],'go')
+    plot(data.free_sulfur_dioxide.loc[t==3],data.total_sulfur_dioxide.loc[t==3],'bo')
+    plot(data.free_sulfur_dioxide.loc[t==4],data.total_sulfur_dioxide.loc[t==4],'mo')
+    plot(data.free_sulfur_dioxide.loc[t==5],data.total_sulfur_dioxide.loc[t==5],'co')
+    plot(data.free_sulfur_dioxide.loc[t==6],data.total_sulfur_dioxide.loc[t==6],'ko')
+    plot(data.free_sulfur_dioxide.loc[t==7],data.total_sulfur_dioxide.loc[t==7],'yo')
+    subplot(212)
+    plot(data.free_sulfur_dioxide.loc[c==1],data.total_sulfur_dioxide.loc[c==1],'ro')
+    plot(data.free_sulfur_dioxide.loc[c==2],data.total_sulfur_dioxide.loc[c==2],'go')
+    plot(data.free_sulfur_dioxide.loc[c==3],data.total_sulfur_dioxide.loc[c==3],'bo')
+    plot(data.free_sulfur_dioxide.loc[c==4],data.total_sulfur_dioxide.loc[c==4],'mo')
+    plot(data.free_sulfur_dioxide.loc[c==5],data.total_sulfur_dioxide.loc[c==5],'co')
+    plot(data.free_sulfur_dioxide.loc[c==6],data.total_sulfur_dioxide.loc[c==6],'ko')
+    plot(data.free_sulfur_dioxide.loc[c==7],data.total_sulfur_dioxide.loc[c==7],'yo')
+    show()
     
     
 
@@ -108,7 +132,8 @@ def main():
     t = classify(data, target, qltylist)
     
     #Clustering
-   
+    print("\nKmeans")
+    clustering(data, t)
     
     
     #discover relationships
