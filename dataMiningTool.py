@@ -115,7 +115,6 @@ def clustering(data,t):
 def regress(data):
     x = data.total_sulfur_dioxide[:,np.newaxis]
     y = data.free_sulfur_dioxide
-    
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=109)
     reg = LinearRegression()
     reg.fit(X_train,y_train)
@@ -132,6 +131,17 @@ def regress(data):
     plt.xlabel("Free Sulfur")
     plt.ylabel("Total Sulfur")
     plt.show()
+    
+def correlation(data):
+    corr = np.corrcoef(data.T)
+    print(corr)
+    plt.pcolor(corr)
+    plt.colorbar()
+    plt.xticks(np.arange(0.5, 11.5),['fixed_acid','vola_acid','cit_acid','res_sugar','chlorides','free_sulf','tot_sulf','density','pH','sulphates','alcohol'])
+    plt.yticks(np.arange(0.5, 11.5),['fixed_acidity','volatile_acidity','citric_acid','residual_sugar','chlorides','free_sulfur_dioxide','total_sulfur_dioxide','density','pH','sulphates','alcohol'])
+    plt.show()
+    
+    
     
 #main function
 def main():
@@ -156,10 +166,12 @@ def main():
     #clustering(data, t)
     
     #Regression
-    print("\nRegression")
-    regress(data)
+    #print("\nRegression")
+    #regress(data)
     
     #Correlation
+    print("\n Correlation")
+    correlation(data)
     
     #Dimensionality Reduction
     
