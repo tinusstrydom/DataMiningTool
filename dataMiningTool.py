@@ -4,12 +4,15 @@
 #imports modules/packages
 import pandas as pd
 import numpy as np
-from pylab import plot,figure,subplot,hist,xlim,show,xlabel,ylabel,title
+import matplotlib.pyplot as plt
+from numpy.random import rand
+from numpy import linspace, matrix
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import confusion_matrix, classification_report,completeness_score,homogeneity_score
+from sklearn.metrics import confusion_matrix, classification_report,completeness_score,homogeneity_score, mean_squared_error
 from sklearn import metrics
 from sklearn.cluster import KMeans
+from sklearn.linear_model import LinearRegression
 
 
 
@@ -27,14 +30,14 @@ def overviewdata():
 
 def plotdata(data, target, qltylist):
     #print(data.fixed_acidity.loc[target.quality == 3])
-    xlabel('Free Sulfur Dioxide')
-    ylabel('Total Sulfur Dioxide')
-    title('Relation of sulfur dioxide on the quality')
+    plt.xlabel('Free Sulfur Dioxide')
+    plt.ylabel('Total Sulfur Dioxide')
+    plt.title('Relation of sulfur dioxide on the quality')
     color = ['ro','go','bo','mo','co','ko','yo']
     colorIt = iter(color)
     for i in qltylist:
-        plot(data.free_sulfur_dioxide.loc[target.quality == i],data.total_sulfur_dioxide.loc[target.quality == i],next(colorIt))
-    show()
+        plt.plot(data.free_sulfur_dioxide.loc[target.quality == i],data.total_sulfur_dioxide.loc[target.quality == i],next(colorIt))
+    plt.show()
 
 def histodata(data, target, qltylist):
     xmin = min(data.alcohol)
@@ -43,18 +46,18 @@ def histodata(data, target, qltylist):
     color = ['r','g','b','m','c','k','y']
     colorIt = iter(color)
     
-    figure(figsize=(10,10),tight_layout=True)
+    plt.figure(figsize=(10,10),tight_layout=True)
     
     for i in qltylist:
-        subplot(count)
-        title('Relationship of alcohol and the quality of wine')
-        hist(data.alcohol.loc[target.quality==i],color=next(colorIt),alpha=.7,)
-        title('Quality = '+str(i))
-        xlabel("Alcohol")
-        ylabel("Quality")
-        xlim(xmin,xmax)
+        plt.subplot(count)
+        plt.title('Relationship of alcohol and the quality of wine')
+        plt.hist(data.alcohol.loc[target.quality==i],color=next(colorIt),alpha=.7,)
+        plt.title('Quality = '+str(i))
+        plt.xlabel("Alcohol")
+        plt.ylabel("Quality")
+        plt.xlim(xmin,xmax)
         count+=1  
-    show()
+    plt.show()
 
 def classify(data, target, qltylist):
     t = np.zeros(len(target))
@@ -90,59 +93,77 @@ def clustering(data,t):
     c = kmeans.predict(data)
     print(completeness_score(t,c))
     print(homogeneity_score(t,c))
-    print(c)
-    figure()
-    subplot(211)
-    plot(data.free_sulfur_dioxide.loc[t==1],data.total_sulfur_dioxide.loc[t==1],'ro')
-    plot(data.free_sulfur_dioxide.loc[t==2],data.total_sulfur_dioxide.loc[t==2],'go')
-    plot(data.free_sulfur_dioxide.loc[t==3],data.total_sulfur_dioxide.loc[t==3],'bo')
-    plot(data.free_sulfur_dioxide.loc[t==4],data.total_sulfur_dioxide.loc[t==4],'mo')
-    plot(data.free_sulfur_dioxide.loc[t==5],data.total_sulfur_dioxide.loc[t==5],'co')
-    plot(data.free_sulfur_dioxide.loc[t==6],data.total_sulfur_dioxide.loc[t==6],'ko')
-    plot(data.free_sulfur_dioxide.loc[t==7],data.total_sulfur_dioxide.loc[t==7],'yo')
-    subplot(212)
-    plot(data.free_sulfur_dioxide.loc[c==1],data.total_sulfur_dioxide.loc[c==1],'ro')
-    plot(data.free_sulfur_dioxide.loc[c==2],data.total_sulfur_dioxide.loc[c==2],'go')
-    plot(data.free_sulfur_dioxide.loc[c==3],data.total_sulfur_dioxide.loc[c==3],'bo')
-    plot(data.free_sulfur_dioxide.loc[c==4],data.total_sulfur_dioxide.loc[c==4],'mo')
-    plot(data.free_sulfur_dioxide.loc[c==5],data.total_sulfur_dioxide.loc[c==5],'co')
-    plot(data.free_sulfur_dioxide.loc[c==6],data.total_sulfur_dioxide.loc[c==6],'ko')
-    plot(data.free_sulfur_dioxide.loc[c==7],data.total_sulfur_dioxide.loc[c==7],'yo')
-    show()
+    plt.figure()
+    plt.subplot(211)
+    plt.plot(data.free_sulfur_dioxide.loc[t==1],data.total_sulfur_dioxide.loc[t==1],'ro')
+    plt.plot(data.free_sulfur_dioxide.loc[t==2],data.total_sulfur_dioxide.loc[t==2],'go')
+    plt.plot(data.free_sulfur_dioxide.loc[t==3],data.total_sulfur_dioxide.loc[t==3],'bo')
+    plt.plot(data.free_sulfur_dioxide.loc[t==4],data.total_sulfur_dioxide.loc[t==4],'mo')
+    plt.plot(data.free_sulfur_dioxide.loc[t==5],data.total_sulfur_dioxide.loc[t==5],'co')
+    plt.plot(data.free_sulfur_dioxide.loc[t==6],data.total_sulfur_dioxide.loc[t==6],'ko')
+    plt.plot(data.free_sulfur_dioxide.loc[t==7],data.total_sulfur_dioxide.loc[t==7],'yo')
+    plt.subplot(212)
+    plt.plot(data.free_sulfur_dioxide.loc[c==1],data.total_sulfur_dioxide.loc[c==1],'ro')
+    plt.plot(data.free_sulfur_dioxide.loc[c==2],data.total_sulfur_dioxide.loc[c==2],'go')
+    plt.plot(data.free_sulfur_dioxide.loc[c==3],data.total_sulfur_dioxide.loc[c==3],'bo')
+    plt.plot(data.free_sulfur_dioxide.loc[c==4],data.total_sulfur_dioxide.loc[c==4],'mo')
+    plt.plot(data.free_sulfur_dioxide.loc[c==5],data.total_sulfur_dioxide.loc[c==5],'co')
+    plt.plot(data.free_sulfur_dioxide.loc[c==6],data.total_sulfur_dioxide.loc[c==6],'ko')
+    plt.plot(data.free_sulfur_dioxide.loc[c==7],data.total_sulfur_dioxide.loc[c==7],'yo')
+    plt.show()
     
+def regress(data):
+    x = data.total_sulfur_dioxide[:,np.newaxis]
+    y = data.free_sulfur_dioxide
     
-
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=109)
+    reg = LinearRegression()
+    reg.fit(X_train,y_train)
+    y_pred = reg.predict(X_test)
+    
+    m = reg.coef_[0]
+    b = reg.intercept_
+    print("Slope = ",m,"\nintercept = ",b)
+    print("Mean squared error = ",mean_squared_error(y_test,y_pred))
+    print()
+        
+    plt.scatter(X_test,y_test,c='black')
+    plt.plot(X_test, y_pred, 'b')
+    plt.xlabel("Free Sulfur")
+    plt.ylabel("Total Sulfur")
+    plt.show()
     
 #main function
 def main():
     print('Welcome to data mining tool!')
     
-    #View overview of data
+    #Data Importing
     print('Lets see an overview of the data\n')
     data, target, dataSet, qltylist = overviewdata()
     
     #Visualization
-    print('\nPlotting relation of sulfur dioxide in comparison to quality')
+    #print('\nPlotting relation of sulfur dioxide in comparison to quality')
     #plotdata(data, target, qltylist)
-    print('\nPlot histogram of amounts alcohol in comparison to quality')
+    #print('\nPlot histogram of amounts alcohol in comparison to quality')
     #histodata(data, target, qltylist)
 
-    #Classify
-    print('\nLets train a classifier from the quality of the wines')
-    t = classify(data, target, qltylist)
+    #Classification
+    #print('\nLets train a classifier from the quality of the wines')
+    #t = classify(data, target, qltylist)
     
     #Clustering
-    print("\nKmeans")
-    clustering(data, t)
+    #print("\nKmeans")
+    #clustering(data, t)
     
+    #Regression
+    print("\nRegression")
+    regress(data)
     
-    #discover relationships
+    #Correlation
     
+    #Dimensionality Reduction
     
-    #compress
-    
-    
-    #analyse data
+    #Networks Mining
     
     
     
