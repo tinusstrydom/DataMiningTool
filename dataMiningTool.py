@@ -13,7 +13,8 @@ from sklearn.metrics import confusion_matrix, classification_report,completeness
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
-
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 
 #functions
@@ -28,6 +29,7 @@ def overviewdata():
     print(qltylist)
     return data, target, dataSet.info(), qltylist
 
+
 def plotdata(data, target, qltylist):
     #print(data.fixed_acidity.loc[target.quality == 3])
     plt.xlabel('Free Sulfur Dioxide')
@@ -38,6 +40,7 @@ def plotdata(data, target, qltylist):
     for i in qltylist:
         plt.plot(data.free_sulfur_dioxide.loc[target.quality == i],data.total_sulfur_dioxide.loc[target.quality == i],next(colorIt))
     plt.show()
+
 
 def histodata(data, target, qltylist):
     xmin = min(data.alcohol)
@@ -58,6 +61,7 @@ def histodata(data, target, qltylist):
         plt.xlim(xmin,xmax)
         count+=1  
     plt.show()
+
 
 def classify(data, target, qltylist):
     t = np.zeros(len(target))
@@ -86,7 +90,8 @@ def classify(data, target, qltylist):
     print(scores)
     print("Mean value of scores:",np.mean(scores))
     return t
-    
+
+
 def clustering(data,t):
     kmeans = KMeans(n_clusters=7, init='random')
     kmeans.fit(data)
@@ -141,8 +146,29 @@ def correlation(data):
     plt.yticks(np.arange(0.5, 11.5),['fixed_acidity','volatile_acidity','citric_acid','residual_sugar','chlorides','free_sulfur_dioxide','total_sulfur_dioxide','density','pH','sulphates','alcohol'])
     plt.show()
     
-    
-    
+def dreduc(data, target):
+    data = StandardScaler().fit_transform(data)
+    data = pd.DataFrame(data) 
+    pca = PCA()
+    x_pca = pca.fit_transform(data)
+    x_pca = pd.DataFrame(x_pca)
+    explained_var = pca.explained_variance_ratio_
+    x_pca.columns = ['PC1','PC2','PC3','PC4','PC5','PC6','PC7','PC8','PC9','PC10','PC11']
+    x_pca['target'] = target
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1) 
+    ax.set_xlabel('Principal Component 1') 
+    ax.set_ylabel('Principal Component 2') 
+    ax.set_title('2 component PCA') 
+    targets = [3,4,5,6,7,8,9]
+    colors = ['r','g','b','m','c','k','y']
+    for target, color in zip(targets,colors):
+        indicesToKeep = x_pca['target'] == target
+        ax.scatter(x_pca.loc[indicesToKeep, 'PC1'], x_pca.loc[indicesToKeep, 'PC2'], c = color, s = 50)
+        ax.legend(targets)
+    ax.grid()
+    plt.show()
+        
 #main function
 def main():
     print('Welcome to data mining tool!')
@@ -170,10 +196,12 @@ def main():
     #regress(data)
     
     #Correlation
-    print("\n Correlation")
-    correlation(data)
+    #print("\n Correlation")
+    #correlation(data)
     
     #Dimensionality Reduction
+    print("\nDimensionality Reduction")
+    dreduc(data, target)
     
     #Networks Mining
     
