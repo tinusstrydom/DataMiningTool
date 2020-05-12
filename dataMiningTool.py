@@ -15,7 +15,7 @@ from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-
+import networkx as nx
 
 #functions
 def overviewdata():
@@ -26,8 +26,7 @@ def overviewdata():
         if not i in qltylist:
             qltylist.append(i)
             qltylist.sort()
-    print(qltylist)
-    return data, target, dataSet.info(), qltylist
+    return dataSet, data, target, qltylist
 
 
 def plotdata(data, target, qltylist):
@@ -155,11 +154,17 @@ def dreduc(data, target):
     explained_var = pca.explained_variance_ratio_
     x_pca.columns = ['PC1','PC2','PC3','PC4','PC5','PC6','PC7','PC8','PC9','PC10','PC11']
     x_pca['target'] = target
+    
+    for i in range(1,12):
+        pca = PCA(n_components=i)
+        pca.fit(x_pca)
+        print(sum(pca.explained_variance_ratio_) * 100,'%')
+
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1) 
     ax.set_xlabel('Principal Component 1') 
     ax.set_ylabel('Principal Component 2') 
-    ax.set_title('2 component PCA') 
+    ax.set_title('PCA for 2 components')
     targets = [3,4,5,6,7,8,9]
     colors = ['r','g','b','m','c','k','y']
     for target, color in zip(targets,colors):
@@ -169,13 +174,54 @@ def dreduc(data, target):
     ax.grid()
     plt.show()
         
+def netmin(dataSet):
+    G = nx.from_pandas_edgelist(dataSet,source='alcohol',target='quality')
+    layout = nx.spring_layout(G)
+    '''alcohol = list(dataSet.alcohol.unique())
+    qualities = list(dataSet.quality.unique())
+    qualitiesSize = [G.degree(qualities) for q in qualities]
+    nx.draw_networkx_nodes(G, layout, nodelist=qualities, node_size=qualitiesSize, node_color='lightblue')
+    nx.draw_networkx_nodes(G, layout, nodelist=alcohol, node_color='magenta', node_size=100)
+    popular = [a for a in alcohol if G.degree(a) > 50]
+    nx.draw_networkx_nodes(G, layout, nodelist=popular, node_color='orange', node_size=100)
+    nx.draw_networkx_edges(G, layout, width=1, edge_color="#cccccc")
+    node_labels = dict(zip(qualities, qualities))
+    nx.draw_networkx_labels(G, layout, labels=node_labels)'''
+    print("Min =",np.min(G.degree))
+    print("Percile(25) =",np.percentile(G.degree,25))
+    print("Median =",np.median(G.degree))
+    print("Percentile(75) =",np.percentile(G.degree,75))
+    print("Max =",np.max(G.degree))
+    cliques = list(nx.find_cliques(G))
+    print("Max Cliques =",max(cliques,key=lambda l: len(l)))
+    Gt = G.copy()
+    dn = nx.degree(Gt)
+    Gt = {Gt.remove_node(n) for n in Gt.nodes() if dn[n] <= 12}
+    '''for n in Gt.nodes():
+        if dn[n] <= 12:
+            Gt.remove_node(n)'''
+    #nx.draw(Gt,node_size=0,edge_color='b',alpha=.2,font_size=12)
+    
+    plt.show()
+
 #main function
 def main():
     print('Welcome to data mining tool!')
+    #print('Please choose example of datamining you would like to see.')
+    #print('''1. Overview of the dataset used for Classification up to Dimensionality reduction
+    #2. Overview of the dataset used for networks mining example
+    #3. Classification
+    #4. Clustering
+    #5. Regression
+    #6. Correlation
+    #7. Dimensionality Reduction
+    #8. Networks Mining
+    #    ''')
     
     #Data Importing
     print('Lets see an overview of the data\n')
-    data, target, dataSet, qltylist = overviewdata()
+    dataSet, data, target, qltylist = overviewdata()
+    print(dataSet.info())
     
     #Visualization
     #print('\nPlotting relation of sulfur dioxide in comparison to quality')
@@ -200,12 +246,12 @@ def main():
     #correlation(data)
     
     #Dimensionality Reduction
-    print("\nDimensionality Reduction")
-    dreduc(data, target)
+    #print("\nDimensionality Reduction")
+    #dreduc(data, target)
     
     #Networks Mining
-    
-    
+    print("\n Networks Mining")
+    netmin(dataSet)
     
 if __name__ == "__main__" :
     main()
